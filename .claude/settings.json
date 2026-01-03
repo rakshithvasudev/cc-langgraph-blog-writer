@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'graph/builder.py\\|graph/nodes.py'; then cd /home/rajathdb/research_agent && python -c 'from research_agent.graph.builder import graph; print(\"✓ Graph compiles with\", len(graph.nodes), \"nodes\")' 2>&1 || echo '✗ Graph compilation failed'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'prompts.py'; then grep -n 'delve\\|leverage\\|crucial\\|vital\\|landscape' /home/rajathdb/research_agent/src/research_agent/graph/prompts.py && echo '⚠ Found AI-typical patterns' || echo '✓ Prompts look clean'; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'graph/'; then pgrep -f 'langgraph dev' > /dev/null && echo '⚠ LangGraph server running - restart after changes' || true; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
